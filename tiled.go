@@ -120,7 +120,6 @@ func (this *TiledData) Decode() ([]byte, error) {
 	var in []byte
 	switch this.Encoding {
 	case "base64":
-		log.Println("...base64")
 		in, err = base64.StdEncoding.DecodeString(data)
 		if err != nil {
 			return nil, err
@@ -159,10 +158,6 @@ func (this *Tiled) Init(fileName string) (*Tiled, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.Println("tileMap", "success")
-	// log.Println(tileMap)
-	log.Println(this.TiledMap.TiledSets)
-	log.Println(len(this.TiledMap.Layers))
 	for _, layer := range this.TiledMap.Layers {
 		if e := layer.Init(); e != nil {
 			log.Println(layer.GetCells())
@@ -174,8 +169,8 @@ func (this *Tiled) Init(fileName string) (*Tiled, error) {
 	return this, nil
 }
 
-func (this *Tiled) GetTerrain(terrain string) ([]uint32, error) {
-	var block []uint32 = make([]uint32, this.TiledMap.Width*this.TiledMap.Height)
+func (this *Tiled) GetTerrain(terrain string) ([]bool, error) {
+	var block []bool = make([]bool, this.TiledMap.Width*this.TiledMap.Height)
 	for _, tile := range this.TiledMap.TiledSets {
 		ter := 0
 		for _, key := range tile.Terrain {
@@ -184,14 +179,13 @@ func (this *Tiled) GetTerrain(terrain string) ([]uint32, error) {
 			}
 			ter++
 		}
-		log.Println(ter)
 		var i uint32
 		for _, key := range tile.TileCells {
 			if strings.Contains(","+key.Terrain+",", ","+strconv.Itoa(ter)+",") {
 				for _, layer := range this.TiledMap.Layers {
 					for i = 0; i < layer.Width*layer.Height; i++ {
 						if key.Id == layer.GetCell(i) {
-							block[i] = 1
+							block[i] = true
 						}
 					} // for i < this.width * this.height
 				} // for layer
